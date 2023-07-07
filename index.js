@@ -33,10 +33,7 @@ async function run() {
         client.connect()
         console.log('DB Connected!')
         const postCollection = client.db('postify').collection('posts')
-        const orderCollection = client.db('postify').collection('orders')
         const userCollection = client.db('postify').collection('users')
-        const reviewCollection = client.db('postify').collection('reviews')
-        const paymentCollection = client.db('postify').collection('payments')
 
 
         app.put('/user/:email', async (req, res) => {
@@ -54,13 +51,8 @@ async function run() {
 
         })
 
-        app.get('/user/:email', verifyJWT, async (req, res) => {
-            const { email } = req.params;
-            const result = await userCollection.findOne({ email: email })
-            res.send(result)
-        })
 
-        app.put('/user/update/:email', verifyJWT, async (req, res) => {
+        app.put('/user/update/:email', async (req, res) => {
             const email = req.params.email
             const user = req.body
             const filter = { email: email }
@@ -72,7 +64,11 @@ async function run() {
             res.send(result)
 
         })
-
+        app.get('/user/:email', verifyJWT, async (req, res) => {
+            const { email } = req.params;
+            const result = await userCollection.findOne({ email: email })
+            res.send(result)
+        })
         app.post('/posts', verifyJWT, async (req, res) => {
             const post = req.body
             const result = await postCollection.insertOne(post)
