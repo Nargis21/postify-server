@@ -30,7 +30,7 @@ function verifyJWT(req, res, next) {
 
 async function run() {
     try {
-        await client.connect()
+        client.connect()
         console.log('DB Connected!')
         const postCollection = client.db('postify').collection('posts')
         const orderCollection = client.db('postify').collection('orders')
@@ -53,18 +53,25 @@ async function run() {
             res.send({ result, token })
 
         })
-        // app.put('/user/update/:email', async (req, res) => {
-        //     const email = req.params.email
-        //     const user = req.body
-        //     const filter = { email: email }
-        //     const options = { upsert: true };
-        //     const updateDoc = {
-        //         $set: user
-        //     }
-        //     const result = await userCollection.updateOne(filter, updateDoc, options);
-        //     res.send(result)
 
-        // })
+        app.get('/user/:email', verifyJWT, async (req, res) => {
+            const { email } = req.params;
+            const result = await userCollection.findOne({ email: email })
+            res.send(result)
+        })
+
+        app.put('/user/update/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email
+            const user = req.body
+            const filter = { email: email }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user
+            }
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+        })
 
         app.post('/posts', verifyJWT, async (req, res) => {
             const post = req.body
